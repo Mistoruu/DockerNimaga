@@ -1,0 +1,40 @@
+services:
+    flask:
+        build:
+            context: ./
+            dockerfile: dockerfile
+        container_name: flask-server
+        ports:
+          - "5000:5000"
+        volumes:
+          - .:/db-data:/flask-volume
+        networks:
+          - "eval"
+    nginx:
+        build:
+          context: ./site
+          dockerfile: dockerfile
+        container_name: nginx_container
+        volumes:
+          - ./db-data:/nginx-volume
+        ports:
+          - 8080:80
+    db:
+        image: mysql:latest
+        restart: always
+        container_name: db-container-eval
+        environment:
+            MYSQL_USER: admin
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: eval
+            MYSQL_PASSWORD: password
+        ports:
+            - "3306:3306"
+        networks:
+          - "eval"
+volumes:
+    db-data:
+      name: "db-volume"
+networks:
+  eval:
+      name: "eval"
