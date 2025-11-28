@@ -1,15 +1,4 @@
 services:
-    flask:
-        build:
-            context: ./
-            dockerfile: dockerfile
-        container_name: flask-server
-        ports:
-          - "5000:5000"
-        volumes:
-          - .:/db-data:/flask-volume
-        networks:
-          - "eval"
     nginx:
         build:
           context: ./site
@@ -20,7 +9,7 @@ services:
         ports:
           - 8080:80
     db:
-        image: mysql:latest
+        image: mysql
         restart: always
         container_name: db-container-eval
         environment:
@@ -32,6 +21,22 @@ services:
             - "3306:3306"
         networks:
           - "eval"
+    flask:
+        build:
+            context: ./
+            dockerfile: dockerfile
+        container_name: flask-server
+        depends_on:
+          db:
+            condition: service_started
+            restart: true
+        ports:
+          - "5000:5000"
+        volumes:
+          - .:/db-data:/flask-volume
+        networks:
+          - "eval"
+
 volumes:
     db-data:
       name: "db-volume"
